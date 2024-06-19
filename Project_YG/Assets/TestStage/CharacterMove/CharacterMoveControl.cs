@@ -9,6 +9,8 @@ public class CharacterMoveControl : MonoBehaviour
     public float JumpSpeed;
     private Rigidbody2D rb;
     private bool isJumping;
+    public bool IsMoving { get; private set; }
+    public Vector3 MoveDirection { get; private set; }
 
     void Awake()
     {
@@ -17,8 +19,14 @@ public class CharacterMoveControl : MonoBehaviour
 
     void Update()
     {
+        float move = Input.GetAxis("Horizontal");
+        // 캐릭터가 움직이고 있는지 여부를 설정
+        IsMoving = Mathf.Abs(move) > 0;
+        // 이동 방향 설정
+        MoveDirection = new Vector3(move, 0, 0);
+
         //점프
-        if(Input.GetButtonDown("Jump")/*후에 애니메이션을 넣으면 && !anim.GetBool("isJumping") 같은 방식으로 넣어서 지금 점프상태인지 아닌지 확인해주기*/ )
+        if(Input.GetButtonDown("Jump") && isJumping == false/*후에 애니메이션을 넣으면 && !anim.GetBool("isJumping") 같은 방식으로 넣어서 지금 점프상태인지 아닌지 확인해주기*/ )
         {
             rb.AddForce(Vector2.up*JumpSpeed, ForceMode2D.Impulse);
             isJumping = true;
@@ -44,7 +52,7 @@ public class CharacterMoveControl : MonoBehaviour
             rb.velocity = new Vector2(MaxSpeed*(-1), rb.velocity.y);
         }
 
-        //착지한 위치 판단
+        //착지판단
         if(rb.velocity.y < 0)
         {
             Debug.DrawRay(rb.position, Vector3.down, new Color(0,1,0));
@@ -53,11 +61,8 @@ public class CharacterMoveControl : MonoBehaviour
 
             if(rayHit.collider != null)
             {
-                if(rayHit.distance < 0.5f)
-                {
-                    Debug.Log(rayHit.collider.name);//이후 점핑 애니메이션 넣을 자리임
-                    isJumping = false;
-                }
+                Debug.Log(rayHit.collider.name);
+                isJumping = false;
             }
         }
     }
